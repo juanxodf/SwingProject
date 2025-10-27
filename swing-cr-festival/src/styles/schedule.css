@@ -42,6 +42,25 @@
   background-color: #9fd3f7;
 }
 
+.schedule-card {
+  cursor: grab;
+}
+
+.schedule-card:active {
+  cursor: grabbing;
+}
+
+.schedule-cell {
+  border: 1px solid #ccc;
+  min-height: 50px;
+  position: relative;
+}
+
+.schedule-cell.dragover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
 .modal-overlay {
   position: fixed;
   top: 0;
