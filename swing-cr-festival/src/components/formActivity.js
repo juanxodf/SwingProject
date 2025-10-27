@@ -1,6 +1,8 @@
 import { ActivityEvent } from '../models/Activity.js'
-import { getEvents, saveEvent, getAvailableLocations, CLASS_ROOMS } from '../data/storage.js'
+import { getEvents, saveEvent, getAvailableLocations, CLASS_ROOMS, updateEvent } from '../data/storage.js'
 import { renderSchedule } from './schedule.js'
+
+let originalSubmitHandler
 
 export function renderActivityForm() {
   const section = document.createElement('section')
@@ -55,14 +57,14 @@ export function renderActivityForm() {
     <p id="activityMessage"></p>
   `
 
-  // Referencias a elementos
   const form = section.querySelector('#activityForm')
+  originalSubmitHandler = form.onsubmit
+
   const locationSelect = section.querySelector('#location')
   const daySelect = section.querySelector('#day')
   const timeInput = section.querySelector('#time')
   const msg = section.querySelector('#activityMessage')
 
-  // Función para validar horario del festival
   function validFestivalTime(day, time) {
     const dayOrder = { 'Viernes': 1, 'Sábado': 2, 'Domingo': 3 }
     if (!dayOrder[day]) return false
@@ -71,7 +73,6 @@ export function renderActivityForm() {
     return true
   }
 
-  // Función para actualizar ubicaciones disponibles
   function updateAvailableLocations() {
     const day = daySelect.value
     const time = timeInput.value
@@ -93,14 +94,11 @@ export function renderActivityForm() {
     }
   }
 
-  // Escuchar cambios en día y hora
   daySelect.addEventListener('change', updateAvailableLocations)
   timeInput.addEventListener('change', updateAvailableLocations)
 
-  // Manejo de envío del formulario
   form.addEventListener('submit', (e) => {
     e.preventDefault()
-
     const data = {
       name: form.name.value.trim(),
       type: form.type.value,
@@ -145,7 +143,6 @@ export function renderActivityForm() {
 
     const newActivity = new ActivityEvent(data)
     saveEvent(newActivity)
-
     msg.textContent = '✅ Actividad registrada correctamente.'
     form.reset()
     updateAvailableLocations()
@@ -153,4 +150,52 @@ export function renderActivityForm() {
   })
 
   return section
+}
+
+export function openActivityFormForEdit(eventData, renderSchedule) {
+  const formContainer = document.querySelector('#formContainer')
+  const activityFormSection = formContainer.querySelectorAll('.form-section')[1] // segunda sección
+  const form = activityFormSection.querySelector('#activityForm')
+
+  // Rellenar formulario
+  form.name.value = eventData.name
+  form.type.value = eventData.type
+  form.location.value = eventData.location
+  form.day.value = eventData.day
+  form.time.value = eventData.time
+  form.band.value = eventData.band
+  form.teachers.value = eventData.teachers
+  form.style.value = eventData.style
+  form.description.value = eventData.description
+
+  const msg = activityFormSection.querySelector('#activityMessage')
+  msg.textContent = '✏️ Editando actividad existente'
+
+  const originalSubmit = form.onsubmit
+
+  form.onsubmit = e => {
+    e.preventDefault()
+
+    const updatedData = {
+      ...eventData,
+      name: form.name.value.trim(),
+      type: form.type.value,
+      location: form.location.value,
+      day: form.day.value,
+      time: form.time.value,
+      band: form.band.value,
+      teachers: form.teachers.value.trim(),
+      style: form.style.value.trim(),
+      description: form.description.value.trim()
+    }
+
+    deleteEvent(eventData.id)
+    saveEvent(updatedData)
+
+    msg.textContent = '✅ Actividad actualizada correctamente'
+    form.reset()
+    renderSchedule()
+
+    form.onsubmit = originalSubmit
+  }
 }

@@ -19,6 +19,11 @@ export function deleteEvent(id) {
   localStorage.setItem('events', JSON.stringify(events))
 }
 
+export function updateEvent(updatedEvent) {
+  const events = getEvents().map(e => e.id === updatedEvent.id ? updatedEvent : e)
+  localStorage.setItem('events', JSON.stringify(events))
+}
+
 // Salas y ubicaciones
 export const CLASS_ROOMS = ['Be Hopper', 'New Orleans', 'Savoy']
 export const OTHER_LOCATIONS = ['Antiguo Casino', 'Parque de Gasset', 'Prado']

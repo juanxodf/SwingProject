@@ -11,6 +11,7 @@ export function renderHomeView() {
     <div id="formsContainer"></div>
     <h2>Programa del Festival</h2>
     <div id="program"></div>
+    <div id="formContainer"></div>
   `
 
   const formsContainer = document.querySelector('#formsContainer')
