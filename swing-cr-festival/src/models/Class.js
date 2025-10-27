@@ -8,6 +8,6 @@ export class ClassEvent {
     this.room = room
     this.day = day
     this.time = time
-    this.type = 'class'
+    this.type = 'class' // Distinción interna
   }
 }
