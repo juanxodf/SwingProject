@@ -1,5 +1,5 @@
 import { ClassEvent } from '../models/Class.js'
-import { saveEvent, getEvents } from '../data/storage.js'
+import { saveEvent, getEvents, getAvailableRooms } from '../data/storage.js'
 import { renderSchedule } from './schedule.js'
 
 export function renderClassForm() {
@@ -31,14 +31,6 @@ export function renderClassForm() {
         <option>Avanzado</option>
       </select>
 
-      <label>Sala:</label>
-      <select id="room" required>
-        <option value="">Selecciona...</option>
-        <option>Be Hopper</option>
-        <option>New Orleans</option>
-        <option>Savoy</option>
-      </select>
-
       <label>Día:</label>
       <select id="day" required>
         <option value="">Selecciona...</option>
@@ -50,72 +42,103 @@ export function renderClassForm() {
       <label>Hora:</label>
       <input type="time" id="time" required />
 
+      <label>Sala:</label>
+      <select id="room" required>
+        <option value="">Selecciona...</option>
+      </select>
+
       <button type="submit">Registrar Clase</button>
     </form>
     <p id="formMessage"></p>
   `
 
+  // Referencias a elementos del formulario
   const form = formContainer.querySelector('#classForm')
-  const message = formContainer.querySelector('#formMessage')
+  const daySelect = formContainer.querySelector('#day')
+  const timeInput = formContainer.querySelector('#time')
+  const roomSelect = formContainer.querySelector('#room')
+  const msg = formContainer.querySelector('#formMessage')
 
+  // Función para actualizar salas disponibles
+  function updateAvailableRooms() {
+    const day = daySelect.value
+    const time = timeInput.value
+    roomSelect.innerHTML = '<option value="">Selecciona...</option>'
+
+    if (!day || !time) return
+
+    const availableRooms = getAvailableRooms(day, time)
+    if (availableRooms.length === 0) {
+      msg.textContent = '⚠️ No hay salas disponibles en ese horario.'
+    } else {
+      msg.textContent = ''
+      availableRooms.forEach(r => {
+        const opt = document.createElement('option')
+        opt.value = r
+        opt.textContent = r
+        roomSelect.appendChild(opt)
+      })
+    }
+  }
+
+  // Escuchar cambios en día y hora
+  daySelect.addEventListener('change', updateAvailableRooms)
+  timeInput.addEventListener('change', updateAvailableRooms)
+
+  // Manejo de envío del formulario
   form.addEventListener('submit', (e) => {
     e.preventDefault()
 
-    // Obtener datos del formulario
     const data = {
       name: form.name.value.trim(),
       teachers: form.teachers.value.trim(),
       style: form.style.value,
       level: form.level.value,
-      room: form.room.value,
-      day: form.day.value,
-      time: form.time.value
+      day: daySelect.value,
+      time: timeInput.value,
+      room: roomSelect.value
     }
 
     // Validar campos requeridos
     if (Object.values(data).some(v => v === '')) {
-      message.textContent = '❌ Todos los campos son obligatorios.'
+      msg.textContent = '❌ Todos los campos son obligatorios.'
       return
     }
 
-    // Validar rango horario
+    // Validar rango horario del festival
     if (!validFestivalTime(data.day, data.time)) {
-      message.textContent = '❌ Hora fuera del rango del festival.'
+      msg.textContent = '❌ Hora fuera del rango del festival (Viernes 20:00 → Domingo 20:00).'
       return
     }
 
-    // Validar solapamiento
+    // Validar solapamiento en la misma sala
     const events = getEvents()
-    const conflict = events.find(e => e.room === data.room && e.day === data.day && e.time === data.time)
-
+    const conflict = events.find(
+      e => e.room === data.room && e.day === data.day && e.time === data.time
+    )
     if (conflict) {
-      message.textContent = '⚠️ Ya hay una clase en esa sala y hora.'
+      msg.textContent = '⚠️ Ya hay una clase en esa sala y hora.'
       return
     }
 
-    // Crear clase y guardar
+    // Guardar clase
     const newClass = new ClassEvent(data)
     saveEvent(newClass)
 
-    message.textContent = '✅ Clase registrada correctamente.'
+    msg.textContent = '✅ Clase registrada correctamente.'
     form.reset()
-
-    // Actualizar visualización
+    updateAvailableRooms()
     renderSchedule()
   })
 
   return formContainer
 }
 
-// Valida el horario del festival
+// Función para validar horario del festival
 function validFestivalTime(day, time) {
-  const dayOrder = { 'Viernes': 10, 'Sábado': 11, 'Domingo': 12 }
+  const dayOrder = { 'Viernes': 1, 'Sábado': 2, 'Domingo': 3 }
   if (!dayOrder[day]) return false
-
-  // Viernes: a partir de 20:00
   if (day === 'Viernes' && time < '20:00') return false
-  // Domingo: hasta 20:00
   if (day === 'Domingo' && time > '20:00') return false
-
   return true
 }

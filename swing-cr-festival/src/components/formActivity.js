@@ -1,5 +1,5 @@
 import { ActivityEvent } from '../models/Activity.js'
-import { getEvents, saveEvent } from '../data/storage.js'
+import { getEvents, saveEvent, getAvailableLocations, CLASS_ROOMS } from '../data/storage.js'
 import { renderSchedule } from './schedule.js'
 
 export function renderActivityForm() {
@@ -22,15 +22,7 @@ export function renderActivityForm() {
       </select>
 
       <label>Ubicación:</label>
-      <select id="location" required>
-        <option value="">Selecciona...</option>
-        <option>Antiguo Casino</option>
-        <option>Parque de Gasset</option>
-        <option>Prado</option>
-        <option>Be Hopper</option>
-        <option>New Orleans</option>
-        <option>Savoy</option>
-      </select>
+      <select id="location" required></select>
 
       <label>Día:</label>
       <select id="day" required>
@@ -53,7 +45,7 @@ export function renderActivityForm() {
       <input type="text" id="teachers" placeholder="Opcional" />
 
       <label>Estilo:</label>
-      <input type="text" id="style" placeholder="Opcional (Lindy Hop, Shag...)" />
+      <input type="text" id="style" placeholder="Opcional" />
 
       <label>Descripción:</label>
       <textarea id="description" placeholder="Detalles opcionales..."></textarea>
@@ -63,37 +55,74 @@ export function renderActivityForm() {
     <p id="activityMessage"></p>
   `
 
+  // Referencias a elementos
   const form = section.querySelector('#activityForm')
+  const locationSelect = section.querySelector('#location')
+  const daySelect = section.querySelector('#day')
+  const timeInput = section.querySelector('#time')
   const msg = section.querySelector('#activityMessage')
 
+  // Función para validar horario del festival
+  function validFestivalTime(day, time) {
+    const dayOrder = { 'Viernes': 1, 'Sábado': 2, 'Domingo': 3 }
+    if (!dayOrder[day]) return false
+    if (day === 'Viernes' && time < '20:00') return false
+    if (day === 'Domingo' && time > '20:00') return false
+    return true
+  }
+
+  // Función para actualizar ubicaciones disponibles
+  function updateAvailableLocations() {
+    const day = daySelect.value
+    const time = timeInput.value
+    locationSelect.innerHTML = '<option value="">Selecciona...</option>'
+
+    if (!day || !time) return
+
+    const available = getAvailableLocations(day, time)
+    if (available.length === 0) {
+      msg.textContent = '⚠️ No hay ubicaciones disponibles en este horario.'
+    } else {
+      msg.textContent = ''
+      available.forEach(l => {
+        const opt = document.createElement('option')
+        opt.value = l
+        opt.textContent = l
+        locationSelect.appendChild(opt)
+      })
+    }
+  }
+
+  // Escuchar cambios en día y hora
+  daySelect.addEventListener('change', updateAvailableLocations)
+  timeInput.addEventListener('change', updateAvailableLocations)
+
+  // Manejo de envío del formulario
   form.addEventListener('submit', (e) => {
     e.preventDefault()
 
     const data = {
       name: form.name.value.trim(),
       type: form.type.value,
-      location: form.location.value,
-      day: form.day.value,
-      time: form.time.value,
+      location: locationSelect.value,
+      day: daySelect.value,
+      time: timeInput.value,
       band: form.band.value,
       teachers: form.teachers.value.trim(),
       style: form.style.value.trim(),
       description: form.description.value.trim()
     }
 
-    // Validar campos requeridos
     if (!data.name || !data.type || !data.location || !data.day || !data.time) {
       msg.textContent = '❌ Todos los campos obligatorios deben estar completos.'
       return
     }
 
-    // Validar rango horario
     if (!validFestivalTime(data.day, data.time)) {
       msg.textContent = '❌ Hora fuera del rango del festival.'
       return
     }
 
-    // Validar solapamiento (ubicación)
     const events = getEvents()
     const conflict = events.find(
       e => e.location === data.location && e.day === data.day && e.time === data.time
@@ -103,8 +132,7 @@ export function renderActivityForm() {
       return
     }
 
-    // Si es una sala de clases, comprobar que esté libre
-    const classRooms = ['Be Hopper', 'New Orleans', 'Savoy']
+    const classRooms = CLASS_ROOMS
     if (classRooms.includes(data.location)) {
       const classConflict = events.find(
         e => e.room === data.location && e.day === data.day && e.time === data.time
@@ -115,24 +143,14 @@ export function renderActivityForm() {
       }
     }
 
-    // Crear y guardar la actividad
     const newActivity = new ActivityEvent(data)
     saveEvent(newActivity)
 
     msg.textContent = '✅ Actividad registrada correctamente.'
     form.reset()
-
+    updateAvailableLocations()
     renderSchedule()
   })
 
   return section
-}
-
-// Reutilizamos la validación del rango del festival
-function validFestivalTime(day, time) {
-  const dayOrder = { 'Viernes': 1, 'Sábado': 2, 'Domingo': 3 }
-  if (!dayOrder[day]) return false
-  if (day === 'Viernes' && time < '20:00') return false
-  if (day === 'Domingo' && time > '20:00') return false
-  return true
 }
