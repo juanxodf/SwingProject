@@ -1,34 +1,70 @@
 import { getEvents } from '../data/storage.js'
 
+const DAYS = ['Viernes', 'Sábado', 'Domingo']
+const HOURS = [
+  '20:00', '21:00', '22:00', '23:00',
+  '00:00', '01:00', '02:00', '03:00',
+  '04:00', '05:00', '06:00', '07:00',
+  '08:00', '09:00', '10:00', '11:00',
+  '12:00', '13:00', '14:00', '15:00',
+  '16:00', '17:00', '18:00', '19:00', '20:00'
+]
+
 export function renderSchedule() {
-  const app = document.querySelector('#program')
+  const container = document.querySelector('#program')
+  if (!container) return
+
+  container.innerHTML = '' // Limpiar contenido previo
   const events = getEvents()
 
-  if (!app) return
+  // Crear grid principal
+  const grid = document.createElement('div')
+  grid.classList.add('schedule-grid')
 
-  // Separar clases y actividades
-  const classes = events.filter(e => e.type === 'class')
-  const activities = events.filter(e => e.kind === 'activity')
+  // Encabezado con días
+  const header = document.createElement('div')
+  header.classList.add('schedule-header')
+  DAYS.forEach(day => {
+    const dayDiv = document.createElement('div')
+    dayDiv.textContent = day
+    dayDiv.classList.add('schedule-day')
+    header.appendChild(dayDiv)
+  })
+  grid.appendChild(header)
 
-  app.innerHTML = `
-    <h3>Programa del Festival</h3>
+  // Crear filas por hora
+  HOURS.forEach(hour => {
+    const row = document.createElement('div')
+    row.classList.add('schedule-row')
+    
+    DAYS.forEach(day => {
+      const cell = document.createElement('div')
+      cell.classList.add('schedule-cell')
 
-    <h4>Clases</h4>
-    ${
-      classes.length === 0
-        ? '<p>No hay clases registradas.</p>'
-        : `<ul>${classes.map(c => `
-            <li><strong>${c.name}</strong> (${c.style}, ${c.level}) – ${c.day} ${c.time} en ${c.room}</li>
-          `).join('')}</ul>`
-    }
+      // Buscar evento que coincida con este día y hora
+      const event = events.find(e => e.day === day && e.time === hour)
+      if (event) {
+        const card = document.createElement('div')
+        card.classList.add('schedule-card')
+        // Diferenciar clases y actividades
+        if (event.room) card.classList.add('class-card')
+        else card.classList.add('activity-card')
 
-    <h4>Actividades</h4>
-    ${
-      activities.length === 0
-        ? '<p>No hay actividades registradas.</p>'
-        : `<ul>${activities.map(a => `
-            <li><strong>${a.name}</strong> (${a.type}) – ${a.day} ${a.time} en ${a.location}</li>
-          `).join('')}</ul>`
-    }
-  `
+        card.textContent = `${event.name} (${event.room || event.location})`
+
+        // Placeholder para modal info (HU5)
+        card.addEventListener('click', () => {
+          alert(JSON.stringify(event, null, 2))
+        })
+
+        cell.appendChild(card)
+      }
+
+      row.appendChild(cell)
+    })
+
+    grid.appendChild(row)
+  })
+
+  container.appendChild(grid)
 }
