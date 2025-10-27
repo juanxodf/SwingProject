@@ -36,7 +36,7 @@ export function renderSchedule() {
   HOURS.forEach(hour => {
     const row = document.createElement('div')
     row.classList.add('schedule-row')
-    
+
     DAYS.forEach(day => {
       const cell = document.createElement('div')
       cell.classList.add('schedule-cell')
@@ -52,9 +52,8 @@ export function renderSchedule() {
 
         card.textContent = `${event.name} (${event.room || event.location})`
 
-        // Placeholder para modal info (HU5)
         card.addEventListener('click', () => {
-          alert(JSON.stringify(event, null, 2))
+          showEventModal(event)
         })
 
         cell.appendChild(card)
@@ -67,4 +66,43 @@ export function renderSchedule() {
   })
 
   container.appendChild(grid)
+}
+
+export function showEventModal(event) {
+  // Crear fondo del modal
+  const overlay = document.createElement('div')
+  overlay.classList.add('modal-overlay')
+
+  // Crear contenido del modal
+  const modal = document.createElement('div')
+  modal.classList.add('modal-content')
+
+  modal.innerHTML = `
+    <h3>${event.name}</h3>
+    <ul>
+      ${event.type ? `<li><strong>Tipo:</strong> ${event.type}</li>` : ''}
+      ${event.room ? `<li><strong>Sala:</strong> ${event.room}</li>` : ''}
+      ${event.location ? `<li><strong>Ubicación:</strong> ${event.location}</li>` : ''}
+      ${event.teachers ? `<li><strong>Profesores:</strong> ${event.teachers}</li>` : ''}
+      ${event.style ? `<li><strong>Estilo:</strong> ${event.style}</li>` : ''}
+      ${event.level ? `<li><strong>Nivel:</strong> ${event.level}</li>` : ''}
+      ${event.band ? `<li><strong>Banda:</strong> ${event.band}</li>` : ''}
+      ${event.description ? `<li><strong>Descripción:</strong> ${event.description}</li>` : ''}
+      <li><strong>Día:</strong> ${event.day}</li>
+      <li><strong>Hora:</strong> ${event.time}</li>
+    </ul>
+    <button id="closeModal">Cerrar</button>
+  `
+
+  overlay.appendChild(modal)
+  document.body.appendChild(overlay)
+
+  // Cerrar modal
+  document.querySelector('#closeModal').addEventListener('click', () => {
+    overlay.remove()
+  })
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.remove()
+  })
 }
