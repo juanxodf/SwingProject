@@ -1,6 +1,8 @@
 import { ActivityEvent } from '../models/Activity.js'
 import { getEvents, saveEvent, getAvailableLocations, CLASS_ROOMS, updateEvent } from '../data/storage.js'
 import { renderSchedule } from './schedule.js'
+import '../styles/formActivity.css'
+
 
 let originalSubmitHandler
 

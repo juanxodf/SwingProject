@@ -1,6 +1,8 @@
 import { ClassEvent } from '../models/Class.js'
 import { saveEvent, getEvents, getAvailableRooms, updateEvent } from '../data/storage.js'
 import { renderSchedule } from './schedule.js'
+import '../styles/formClass.css'
+
 
 export function renderClassForm() {
   const formContainer = document.createElement('section')

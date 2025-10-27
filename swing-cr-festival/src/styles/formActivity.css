@@ -1,0 +1,75 @@
+@import './variables.css';
+
+.activity-form-container {
+  background-color: var(--color-blanco);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin: 20px auto;
+  border: 2px solid var(--color-borde);
+}
+
+.activity-form-container h2 {
+  text-align: center;
+  color: var(--color-primario);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+#activityForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#activityForm label {
+  font-weight: 500;
+  color: var(--color-acento);
+}
+
+#activityForm input,
+#activityForm select,
+#activityForm textarea {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-borde);
+  font-size: 0.95rem;
+  background-color: #fff8ef;
+}
+
+#activityForm textarea {
+  resize: none;
+  min-height: 60px;
+}
+
+#activityForm input:focus,
+#activityForm select:focus,
+#activityForm textarea:focus {
+  border-color: var(--color-secundario);
+  outline: none;
+  background-color: #fff;
+}
+
+#activityForm button {
+  background-color: var(--color-primario);
+  color: var(--color-blanco);
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#activityForm button:hover {
+  background-color: var(--color-secundario);
+  color: var(--color-acento);
+}
+
+#activityMessage {
+  text-align: center;
+  font-style: italic;
+  color: var(--color-secundario);
+  margin-top: 10px;
+}

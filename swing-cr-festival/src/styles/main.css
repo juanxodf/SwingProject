@@ -4,17 +4,42 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   background-color: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-texto);
+  background-image: radial-gradient(circle at top left, #fff6e0 0%, #faf3e0 100%);
+  min-height: 100vh;
 }
 
 header {
   text-align: center;
-  background: var(--color-primary);
-  color: white;
+  background: linear-gradient(90deg, var(--color-primario), var(--color-secundario));
+  color: var(--color-blanco);
   padding: 1rem;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+  font-weight: 600;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 #app {
   padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+button {
+  background-color: var(--color-primario);
+  color: var(--color-blanco);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: var(--color-secundario);
+  color: var(--color-acento);
+  transform: scale(1.05);
 }

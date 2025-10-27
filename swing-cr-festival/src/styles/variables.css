@@ -1,6 +1,11 @@
 :root {
-  --color-primario: #b85c38; 
+  --color-primario: #b85c38;
   --color-secundario: #f0a500;
   --color-bg: #faf3e0;
-  --color-texto: #2b2b2b;
+  --color-acento: #2b2b2b;
+  --color-texto: #3b2f2f;
+  --color-card-clase: #f7c59f;
+  --color-card-actividad: #9fd3f7;
+  --color-borde: #d4a373;
+  --color-blanco: #fff;
 }
