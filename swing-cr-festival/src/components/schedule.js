@@ -107,6 +107,7 @@ export function showEventModal(event) {
       <p><strong>Banda:</strong> ${event.band || 'No'}</p>
       <p><strong>Descripción:</strong> ${event.description || '-'}</p>
       <button id="editEvent">Editar</button>
+      <button id="deleteEvent">Eliminar</button>
       <button id="closeModal">Cerrar</button>
     </div>
   `
@@ -117,17 +118,16 @@ export function showEventModal(event) {
   overlay.querySelector('#closeModal').addEventListener('click', () => overlay.remove())
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove() })
 
-  // Editar: reemplazar contenido por formulario
+  // Editar evento dentro del modal
   overlay.querySelector('#editEvent').addEventListener('click', () => {
     const modalContent = overlay.querySelector('.modal-content')
-    modalContent.innerHTML = '' // vaciamos el modal
+    modalContent.innerHTML = ''
 
     if (event.room) {
       // Clase
       const form = renderClassForm()
       modalContent.appendChild(form)
 
-      // Rellenar con datos
       const classForm = form.querySelector('#classForm')
       classForm.name.value = event.name
       classForm.teachers.value = event.teachers
@@ -193,6 +193,15 @@ export function showEventModal(event) {
         renderSchedule()
         overlay.remove()
       }
+    }
+  })
+
+  // Eliminar evento
+  overlay.querySelector('#deleteEvent').addEventListener('click', () => {
+    if (confirm(`¿Deseas eliminar "${event.name}"?`)) {
+      deleteEvent(event.id)
+      renderSchedule()
+      overlay.remove()
     }
   })
 }
