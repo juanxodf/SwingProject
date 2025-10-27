@@ -1,3 +1,77 @@
+/* Responsive grid */
+@media (max-width: 768px) {
+  .schedule-grid {
+    grid-template-columns: 1fr; /* 1 columna en tablet/móvil */
+  }
+  .schedule-day {
+    font-size: 0.9rem;
+    padding: 3px;
+  }
+  .schedule-card {
+    font-size: 0.8rem;
+    padding: 2px 4px;
+  }
+}
+
+/* Formularios responsive */
+.form-section {
+  max-width: 500px;
+  margin: 10px auto;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  background-color: #fff;
+}
+.form-section form {
+  display: flex;
+  flex-direction: column;
+}
+.form-section label,
+.form-section input,
+.form-section select,
+.form-section textarea,
+.form-section button {
+  margin-bottom: 10px;
+  width: 100%;
+}
+@media (max-width: 480px) {
+  .form-section {
+    padding: 5px;
+  }
+  .form-section input,
+  .form-section select,
+  .form-section textarea,
+  .form-section button {
+    font-size: 0.9rem;
+  }
+}
+
+/* Modal responsive */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 15px;
+    max-width: 95%;
+  }
+  .modal-content h3 {
+    font-size: 1rem;
+  }
+  .modal-content p {
+    font-size: 0.85rem;
+  }
+  .modal-content button {
+    font-size: 0.85rem;
+    padding: 5px 8px;
+  }
+}
+
+/* Scroll horizontal si grid demasiado ancha */
+#program {
+  overflow-x: auto;
+}
+.schedule-grid {
+  min-width: 600px;
+}
+
 .schedule-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
